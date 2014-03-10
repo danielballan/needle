@@ -1,6 +1,7 @@
 import numpy as np
 from scipy import  ndimage
 from pandas import Series
+from preprocessing import bigfish, threshold
 
 
 def moment(img, i, j):
