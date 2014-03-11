@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# imreg.py
+# phase_correlation.py, originally named imreg.py
 
 # Copyright (c) 2011-2014, Christoph Gohlke
 # Copyright (c) 2011-2014, The Regents of the University of California
@@ -261,7 +261,7 @@ def imread(fname, norm=True):
     return img
 
 
-def imshow(im0, im1, im2, im3=None, cmap=None, **kwargs):
+def show_set(im0, im1, im2, im3=None, cmap=None, **kwargs):
     """Plot images using matplotlib."""
     from matplotlib import pyplot
     if cmap is None:
