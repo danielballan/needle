@@ -88,8 +88,10 @@ from numpy.fft import fft2, ifft2, fftshift
 
 try:
     import scipy.ndimage.interpolation as ndii
+    from scipy.ndimage.measurements import center_of_mass
 except ImportError:
     import ndimage.interpolation as ndii
+    from ndimage.measurements import center_of_mass
 
 __version__ = '2013.01.18'
 __docformat__ = 'restructuredtext en'
@@ -146,7 +148,7 @@ def similarity(im0, im1):
     f1 = fft2(f1)
     r0 = abs(f0) * abs(f1)
     ir = abs(ifft2((f0 * f1.conjugate()) / r0))
-    i0, i1 = numpy.unravel_index(numpy.argmax(ir), ir.shape)
+    i0, i1 = center_of_mass(ir)
     angle = 180.0 * i0 / ir.shape[0]
     scale = log_base ** i1
 
