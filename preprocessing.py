@@ -1,16 +1,17 @@
 import numpy as np
+from skimage import filter
 from scipy import ndimage
 
-def threshold(im, sigma=3):
+def threshold(image, sigma=3):
     """Threshold a grayscale image based on the mean and std brightness.
 
     Parameters
     ----------
-    im: ndarray
+    image: ndarray
     sigma: float, default 3.0
         minimum brightness in terms of standard deviations above the mean
     """
-    mask = im > (im.mean() + sigma*im.std())
+    mask = image > (image.mean() + sigma*image.std())
     return mask
 
 def bigfish(mask, padding=0.03):
@@ -42,3 +43,14 @@ def pad_roi(roi, padding, img_shape):
                    np.clip(s1.stop + p, 0, img_shape[1] - 1))
     return new_s0, new_s1
 
+
+def preprocess(image, gaussian_sigma=1, mask_threshold=-0.5):
+    roi = bigfish(threshold(image))
+    image = image[roi].astype(float)
+    blurred = filter.gaussian_filter(image, gaussian_sigma)
+    if mask_threshold:
+        masked = np.where(threshold(blurred, mask_threshold),
+                         blurred, np.zeros_like(blurred))
+        return masked
+    else:
+        return blurred 

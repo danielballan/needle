@@ -3,7 +3,6 @@ from scipy.optimize import curve_fit
 from scipy.stats import linregress
 from pandas import Series
 from skimage import transform, filter
-from preprocessing import bigfish, threshold
 
 
 def _gaussian(x, A, sigma, x0):
@@ -48,20 +47,14 @@ class ConvergenceError(Exception):
     pass
 
 
-def analyze(image, guess_sigma=3., gaussian_sigma=1., max_iterations=20):
-    roi = bigfish(threshold(image))
-    image = image[roi].astype(float)
-    blurred = filter.gaussian_filter(image, gaussian_sigma)
-    masked = np.where(threshold(blurred, -0.5),
-                      blurred, np.zeros_like(blurred))
-    preprocessed = blurred # currently, 'masked' is not used
-    fits = fit_rows(preprocessed, guess_sigma)
+def analyze(image, guess_sigma=3., max_iterations=20):
+    fits = fit_rows(image, guess_sigma)
     angle = np.rad2deg(infer_angle_from_centers(fits[:, 2]))
     total_angle = angle
     i = 0
     while np.abs(angle) > 5:
-        preprocessed = transform.rotate(preprocessed, -angle)
-        fits = fit_rows(preprocessed, guess_sigma)
+        image = transform.rotate(image, -angle)
+        fits = fit_rows(image, guess_sigma)
         angle = np.rad2deg(infer_angle_from_centers(fits[:, 2]))
         total_angle += angle
         if i > max_iterations:

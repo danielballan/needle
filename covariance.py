@@ -57,7 +57,7 @@ def orientation(cov):
     return np.arctan2(eigvec[1], eigvec[0])
 
 
-def analyze(frame, angle_only=True, plot=False):
+def analyze(image, angle_only=True, plot=False):
     """Find a nanowire in a frame and return its orientation angle
     in degrees.
 
@@ -68,16 +68,12 @@ def analyze(frame, angle_only=True, plot=False):
 
     Parameters
     ----------
-    frame: image array
-    angle_only: If True (default), return angle in degrees. If False,
+    image : image array
+    angle_only : If True (default), return angle in degrees. If False,
        return x_bar, y_bar, cov -- the C.O.M. and the covariance matrix.
-    plot: False by default. If True, plot principle axes over the ROI.
+    plot : False by default. If True, plot principle axes over the ROI.
     """
-    roi = bigfish(threshold(frame))
-    blurred = ndimage.gaussian_filter(frame[roi].astype('float'), 3)
-    masked = np.where(threshold(blurred, -0.5),
-                     blurred, np.zeros_like(blurred))
-    results = inertial_axes(masked)
+    results = inertial_axes(image)
     if plot:
         import mr.plots
         mr.plots.plot_principal_axes(frame[roi], *results)
