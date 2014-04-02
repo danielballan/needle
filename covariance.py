@@ -82,7 +82,7 @@ def analyze(frame, angle_only=True, plot=False):
         import mr.plots
         mr.plots.plot_principal_axes(frame[roi], *results)
     if angle_only:
-        return np.rad2deg(orientation(results[2]))
+        return np.mod(- np.rad2deg(orientation(results[2])), 180)
     else:
         return results
 
