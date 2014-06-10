@@ -2,6 +2,7 @@ import numpy as np
 from scipy import  ndimage
 from pandas import Series
 from preprocessing import bigfish, threshold
+import plotting
 
 
 def moment(img, i, j):
@@ -76,7 +77,7 @@ def analyze(image, angle_only=True, plot=False):
     results = inertial_axes(image)
     if plot:
         import mr.plots
-        mr.plots.plot_principal_axes(frame[roi], *results)
+        plotting.plot_principal_axes(frame[roi], *results)
     if angle_only:
         return np.mod(- np.rad2deg(orientation(results[2])), 180)
     else:
