@@ -44,7 +44,8 @@ def pad_roi(roi, padding, img_shape):
     return new_s0, new_s1
 
 
-def prepare(image, primary_sigma=3, blur_sigma=1, mask_sigma=-0.5):
+def prepare(image, primary_sigma=3, padding=0.03,
+            blur_sigma=1, mask_sigma=-0.5, gentle_mask=True):
     """Prepare the image using a sequence of standard preprocessing operations.
     
     1. Identify the primary object (largest connected region).
@@ -55,21 +56,28 @@ def prepare(image, primary_sigma=3, blur_sigma=1, mask_sigma=-0.5):
     Parameters
     ----------
     image : grayscale image array
-    primary_sigma : sigma used in initial threshold operation to isolate objects
+    primary_sigma : sigma used in initial threshold operation to isolate object
+    padding : relative padding of ROI around object
     blur_sigma : Gaussian blur sigma
     mask_sigma : sigma used in final threshold to crush near-black regions
+    gentle_mask : boolean
+        If True (default) crush background to full black. If False, suppress
+        background like exp(-brightness/max_brightness_in_image).
 
     Returns
     -------
     a tuple: roi, processed_image
     """
 
-    roi = primary_object(threshold(image, primary_sigma))
+    roi = primary_object(threshold(image, primary_sigma), padding)
     image = image[roi].astype(float)
     blurred = filter.gaussian_filter(image, blur_sigma)
     if mask_sigma:
-        masked = np.where(threshold(blurred, mask_sigma),
-                         blurred, np.zeros_like(blurred))
+        if gentle_mask:
+            background = np.exp(-blurred/blurred.max())
+        else:
+            background = np.zeros_like(blurred)
+        masked = np.where(threshold(blurred, mask_sigma), blurred, background)
         return roi, masked
     else:
         return roi, blurred
