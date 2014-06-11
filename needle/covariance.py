@@ -1,7 +1,5 @@
 import numpy as np
-from scipy import ndimage
 from pandas import Series
-import plotting
 
 
 def moment(img, i, j):

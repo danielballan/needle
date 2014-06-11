@@ -2,12 +2,13 @@
 from setuptools import setup
 
 setup_parameters = dict(
-    name = "trackwire",
-    description = "wire-tracking toolkit",
+    name = "needle",
+    version = "0.0.1",
+    description = "Track the orientation of elongated objects.",
     author = "Daniel Allan",
-    author_email = "dallan@pha.jhu.edu",
-    url = "https://github.com/danielballan/trackwire",
-    packages = ['trackwire']
+    author_email = "daniel.b.allan@jhu.edu",
+    url = "https://github.com/danielballan/needle",
+    packages = ['needle']
 )
 
 setup(**setup_parameters)

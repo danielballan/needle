@@ -1,3 +1,5 @@
+import numpy as np
+
 
 def plot_principal_axes(img, x_bar, y_bar, cov, ax=None):
     """Plot bars with a length of 2 stddev along the principal axes.

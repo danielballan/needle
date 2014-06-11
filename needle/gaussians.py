@@ -2,7 +2,7 @@ import numpy as np
 from scipy.optimize import curve_fit
 from scipy.stats import linregress
 from pandas import Series
-from skimage import transform, filter
+from skimage import transform
 
 
 def _gaussian(x, A, sigma, x0):

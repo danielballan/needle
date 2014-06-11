@@ -15,7 +15,7 @@ def threshold(image, sigma=3):
     return mask
 
 def primary_object(mask, padding=0.03):
-    """Identify the largest connected region and return the roi. 
+    """Identify the largest connected region and return the roi.
 
     Parameters
     ----------
@@ -24,7 +24,7 @@ def primary_object(mask, padding=0.03):
 
     Returns
     -------
-    padded_roi: a tuple of slice objects, for indexing the image
+    padded_roi: a tuple of slice objects
     """
     label_im, nb_labels = ndimage.label(mask)
     sizes = ndimage.sum(mask, label_im, range(nb_labels + 1))
@@ -44,13 +44,32 @@ def pad_roi(roi, padding, img_shape):
     return new_s0, new_s1
 
 
-def preprocess(image, gaussian_sigma=1, mask_threshold=-0.5):
-    roi = primary_object(threshold(image))
+def prepare(image, primary_sigma=3, blur_sigma=1, mask_sigma=-0.5):
+    """Prepare the image using a sequence of standard preprocessing operations.
+    
+    1. Identify the primary object (largest connected region).
+    2. Crop to that ROI (Region Of Interest) with a margin around the object.
+    3. Blur the image and mask out pixels that are away from the object.
+    4. Return the ROI slice and the processed ROI image itself.
+
+    Parameters
+    ----------
+    image : grayscale image array
+    primary_sigma : sigma used in initial threshold operation to isolate objects
+    blur_sigma : Gaussian blur sigma
+    mask_sigma : sigma used in final threshold to crush near-black regions
+
+    Returns
+    -------
+    a tuple: roi, processed_image
+    """
+
+    roi = primary_object(threshold(image, primary_sigma))
     image = image[roi].astype(float)
-    blurred = filter.gaussian_filter(image, gaussian_sigma)
-    if mask_threshold:
-        masked = np.where(threshold(blurred, mask_threshold),
+    blurred = filter.gaussian_filter(image, blur_sigma)
+    if mask_sigma:
+        masked = np.where(threshold(blurred, mask_sigma),
                          blurred, np.zeros_like(blurred))
-        return masked
+        return roi, masked
     else:
-        return blurred 
+        return roi, blurred
