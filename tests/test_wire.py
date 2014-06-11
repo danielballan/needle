@@ -3,11 +3,13 @@ import os
 import numpy as np
 from numpy.testing import assert_allclose
 from skimage import draw, transform, filter
-import covariance
-import gaussians
-from preprocessing import preprocess
+import trackwire
+from trackwire import covariance
+from trackwire import gaussians
+from trackwire import preprocessing
+from trackwire.preprocessing import preprocess
 
-data_dir = os.path.join(os.path.dirname(covariance.__file__), 'tests', 'data')
+data_dir = os.path.join(os.path.dirname(trackwire.__file__), '..', 'tests', 'data')
 
 oblique = np.load(os.path.join(data_dir, 'oblique_frame.npy'))
 vertical = np.load(os.path.join(data_dir, 'vertical_frame.npy'))

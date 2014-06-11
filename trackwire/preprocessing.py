@@ -14,7 +14,7 @@ def threshold(image, sigma=3):
     mask = image > (image.mean() + sigma*image.std())
     return mask
 
-def bigfish(mask, padding=0.03):
+def primary_object(mask, padding=0.03):
     """Identify the largest connected region and return the roi. 
 
     Parameters
@@ -45,7 +45,7 @@ def pad_roi(roi, padding, img_shape):
 
 
 def preprocess(image, gaussian_sigma=1, mask_threshold=-0.5):
-    roi = bigfish(threshold(image))
+    roi = primary_object(threshold(image))
     image = image[roi].astype(float)
     blurred = filter.gaussian_filter(image, gaussian_sigma)
     if mask_threshold:

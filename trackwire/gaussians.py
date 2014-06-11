@@ -48,18 +48,39 @@ class ConvergenceError(Exception):
 
 
 def analyze(image, guess_sigma=3., max_iterations=20):
+    """Discern the orientation of an elongated object in an image.
+
+    Fit a Gaussian to each row of image, and fit a line along their
+    centers. Rotate the image and perform the fit again, iteratively.
+
+    Parameters
+    ----------
+    image : image array
+    guess_sigma : initial guess for Gaussian width of wire
+    max_iterations : number of times to rotate image retry fit, 20 by default
+
+    Returns 
+    -------
+    Series with 'x' center, 'y' center, and 'angle' in radians
+
+    Note
+    ----
+    This technique does not find the center of the wire.
+    The center x, y is just the center of the ROI.
+    """
     fits = fit_rows(image, guess_sigma)
-    angle = np.rad2deg(infer_angle_from_centers(fits[:, 2]))
+    x0 = fits[:, 2]
+    angle = infer_angle_from_centers(x0)
     total_angle = angle
     i = 0
     while np.abs(angle) > 5:
         image = transform.rotate(image, -angle)
         fits = fit_rows(image, guess_sigma)
-        angle = np.rad2deg(infer_angle_from_centers(fits[:, 2]))
+        angle = infer_angle_from_centers(fits[:, 2])
         total_angle += angle
         if i > max_iterations:
             raise ConvergenceError(
                 "After {0} consecutive rotations, the image could not be "
                 "aligned to the vertical.".format(max_iterations))
         i += 1
-    return np.mod(total_angle - 90, 180)
+    return Series(total_angle, image.shape[0] // 2, image.shape[1] // 2)

@@ -1,7 +1,6 @@
 import numpy as np
-from scipy import  ndimage
+from scipy import ndimage
 from pandas import Series
-from preprocessing import bigfish, threshold
 import plotting
 
 
@@ -54,73 +53,24 @@ def orientation(cov):
     angle in radians
     """
     eigvals, eigvecs = np.linalg.eigh(cov)
-    eigvec = eigvecs[eigvals.argmax()]
-    return np.arctan2(eigvec[1], eigvec[0])
+    principal_moment = eigvecs[eigvals.argmax()]
+    return np.arctan2(principal_moment[1], principal_moment[0])
 
 
-def analyze(image, angle_only=True, plot=False):
-    """Find a nanowire in a frame and return its orientation angle
-    in degrees.
+def analyze(image):
+    """Discern the orientation of an elongated object in an image.
 
-    Note
-    ----
-    This convenience function wraps several other functions with detailed
-    docstrings. Refer to them for more information.
+    Compute the image's covariance matrix ("inertial tensor" if brightness
+    is mass). Find the direction of the principle moment of inertia.
 
     Parameters
     ----------
     image : image array
-    angle_only : If True (default), return angle in degrees. If False,
-       return x_bar, y_bar, cov -- the C.O.M. and the covariance matrix.
-    plot : False by default. If True, plot principle axes over the ROI.
+
+    Returns
+    -------
+    DataFrame with 'x' center, 'y' center, and 'angle' in radians
     """
     results = inertial_axes(image)
-    if plot:
-        import mr.plots
-        plotting.plot_principal_axes(frame[roi], *results)
-    if angle_only:
-        return np.mod(- np.rad2deg(orientation(results[2])), 180)
-    else:
-        return results
-
-
-def batch(frames):
-    """Track the orientation of a wire through many frames.
-
-    Parameters
-    ----------
-    frames : an iterable, such as a list of images or a mr.Video
-        object
-
-    Returns
-    -------
-    Series of angles in degrees, indexed by frame
-    """
-    count = frames.count
-    data = Series(index=range(1, count + 1))
-    for i, img in enumerate(frames):
-        data[i + 1] = analyze(img)
-    data = data.dropna() # Discard unused rows.
-    return data
-
-
-def periodic_shift(data, shift, period=180):
-    return np.mod(data + shift, period) - shift
-
-
-def shift_ref_frame(data):
-    """Choose a cut that avoids splitting the range of observations.
-
-    Parameters
-    ----------
-    data : array of angles in degrees, revised in place
-
-    Returns
-    -------
-    None   
-    """
-    trial_shifts = np.linspace(0, 360, 360)
-    spans = np.array([np.ptp(periodic_shift(data, s)) for s in trial_shifts])
-    good_shift = trial_shifts[spans.argmin()]
-    print good_shift
-    return periodic_shift(data, good_shift)
+    results[2] = orientation(results[2])
+    return Series(results, columns=['x', 'y', 'angle'])
