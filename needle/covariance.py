@@ -69,6 +69,6 @@ def analyze(image):
     -------
     DataFrame with 'x' center, 'y' center, and 'angle' in radians
     """
-    results = inertial_axes(image)
+    results = list(inertial_axes(image))
     results[2] = orientation(results[2])
-    return Series(results, columns=['x', 'y', 'angle'])
+    return Series(results, index=['x', 'y', 'angle'])
