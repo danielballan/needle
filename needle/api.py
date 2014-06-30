@@ -4,3 +4,4 @@ import plotting
 
 from .preprocessing import prepare
 from .plotting import annotate
+from .interactive import crop
