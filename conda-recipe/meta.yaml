@@ -12,7 +12,7 @@ requirements:
 
   run:
     - python
-    - numpy
+    - numpy >=1.7
     - scipy
     - pandas
     - scikit-image
