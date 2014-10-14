@@ -1,0 +1,2 @@
+include versioneer.py
+include needle/_version.py
